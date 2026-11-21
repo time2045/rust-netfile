@@ -85,9 +85,10 @@ function renderOverview() {
   const running = snap.running;
   $("#ovDot").className = "status-dot " + (locked ? "warn" : running ? "ok" : "bad");
   $("#ovStatus").textContent = locked ? "服务已锁定" : running ? "服务运行中" : "服务已停止";
-  $("#ovHint").textContent = snap.urls?.[0]
+  const prefix = snap.has_password ? "" : "未设置访问密码 · ";
+  $("#ovHint").textContent = prefix + (snap.urls?.[0]
     ? `${snap.urls[0]} · 共享目录 ${snap.root_dir}`
-    : `端口 ${snap.port} · 共享目录 ${snap.root_dir}`;
+    : `端口 ${snap.port} · 共享目录 ${snap.root_dir}`);
   $("#sideStatus").textContent = locked ? "服务已锁定" : running ? "服务运行中" : "服务未启动";
   $("#btnRestart").disabled = !running;
   $("#btnLock").disabled = locked || !running;
@@ -187,7 +188,21 @@ async function saveSettings(event) {
     auto_start: $("#setAutoStart").checked,
   };
   if (!payload.root_dir) { toast("共享目录不能为空", "warning"); return; }
-  if (!(payload.port >= 1 && payload.port <= 65535)) { toast("端口必须在 1-65535 之间", "warning"); return; }
+  const numeric = [
+    ["#setPort", "端口", 1, 65535],
+    ["#setUploadLimit", "上传限制", 0, 10 * 1024 * 1024],
+    ["#setRecycleDays", "回收站保留天数", 1, 3650],
+    ["#setSessionHours", "登录有效期", 1, 720],
+    ["#setMaxFailures", "登录失败上限", 3, 100],
+    ["#setBlockMinutes", "封禁时长", 1, 1440],
+  ];
+  for (const [id, label, min, max] of numeric) {
+    const value = Number($(id).value);
+    if (!Number.isInteger(value) || value < min || value > max) {
+      toast(`${label}必须是 ${min}-${max} 之间的整数`, "warning");
+      return;
+    }
+  }
   const oldPort = state.snapshot?.port;
   const wasRunning = state.snapshot?.running;
   const button = $("#btnSaveSettings");

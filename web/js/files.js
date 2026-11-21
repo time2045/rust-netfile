@@ -61,7 +61,9 @@ function clampPageSize(value) {
 
 export function applyParams(params) {
   const hasPath = params.has("path");
-  let path = hasPath ? params.get("path") : (sessionStorage.getItem(PREFS.path) || "");
+  // 侧栏“文件管理”不带 path 时恢复上次目录；直接打开本站或面包屑根目录则回到共享根。
+  const wantsLast = params.get("view") === "files" && !hasPath;
+  let path = hasPath ? params.get("path") : (wantsLast ? (sessionStorage.getItem(PREFS.path) || "") : "");
   state.path = (path || "").replace(/\\/g, "/").replace(/^\/+|\/+$/g, "");
   state.q = params.get("q") || "";
   const page = parseInt(params.get("page") || "1", 10);
@@ -90,7 +92,7 @@ export function applyParams(params) {
 function urlForListing(overrides = {}) {
   const next = {
     view: "files",
-    path: state.path,
+    path: state.path || "/",
     q: state.q,
     page: state.page,
     page_size: state.pageSize,
@@ -98,6 +100,7 @@ function urlForListing(overrides = {}) {
     order: state.order,
     ...overrides,
   };
+  if (!next.path) next.path = "/";
   return next;
 }
 
@@ -130,7 +133,7 @@ async function loadFiles({ silent = false } = {}) {
     if (seq !== state.loadSeq) return;
     if (err.status === 404) {
       toast("目录不存在，已返回根目录", "warning");
-      navigate({ view: "files", path: "" });
+      navigate({ view: "files", path: "/" });
       return;
     }
     if (err.status !== 401 && err.status !== 423) toast(err.message || "读取目录失败");
@@ -381,6 +384,19 @@ function renderSelection() {
   $("#selectionInfo").textContent = count ? "已选 " + count + " 项" : "";
   ["btnBatchDownload", "btnBatchCopy", "btnBatchMove", "btnBatchDelete"].forEach((id) => {
     $("#" + id).classList.toggle("hidden", count === 0);
+  });
+  $$("#fileBody .item-check[data-path]").forEach((node) => {
+    const on = state.selection.has(node.dataset.path);
+    node.checked = on;
+    const row = node.closest("tr");
+    if (row) row.classList.toggle("selected", on);
+  });
+  $$("#gridView .grid-card").forEach((card) => {
+    const node = card.querySelector(".item-check[data-path]");
+    if (!node) return;
+    const on = state.selection.has(node.dataset.path);
+    node.checked = on;
+    card.classList.toggle("selected", on);
   });
   const visible = $$("#fileBody .item-check[data-path]");
   const checked = visible.filter((node) => node.checked);

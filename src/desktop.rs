@@ -120,7 +120,7 @@ pub fn setup(app: &AppHandle, state: SharedState) -> Result<(), String> {
     if let Ok(mut guard) = LOCK_ITEMS.lock() {
         *guard = Some((lock, unlock));
     }
-    state.set_lock_callback(Arc::new(|locked| sync_lock(locked)));
+    state.set_lock_callback(Arc::new(|locked: bool| sync_lock(locked)));
     TRAY_READY.store(true, Ordering::SeqCst);
     Ok(())
 }
@@ -241,6 +241,10 @@ pub fn run() {
     let log = crate::logging::LogStore::new(&data_dir);
     if let Some(warning) = warning {
         log.line(&warning);
+    }
+    // 首次启动即落盘，确保会话密钥与默认共享目录跨重启保持稳定
+    if let Err(err) = config::save(&data_dir, &cfg) {
+        log.line(&format!("初始化配置失败：{err}"));
     }
     let state = AppState::new(data_dir, cfg, log, Some(instance_lock));
     let builder = tauri::Builder::default()

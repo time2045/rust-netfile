@@ -328,3 +328,6 @@ refresh();
 setInterval(() => {
   if (document.visibilityState === "visible") refresh();
 }, 1200);
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) refresh();
+});
