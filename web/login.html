@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NB 文件管理器 · 登录</title>
+<link rel="icon" href="favicon.ico" type="image/x-icon">
+<link rel="stylesheet" href="static/css/login.css">
+<script src="config.js"></script>
+<script src="static/js/login.js" defer></script>
+</head>
+<body>
+<div class="login-card">
+  <div class="login-brand">
+    <div class="logo">NB</div>
+    <div class="brand-text"><strong>NB 文件管理器</strong><span>局域网文件共享</span></div>
+  </div>
+  <h1>访问受限</h1>
+  <p class="sub">请输入访问密码以进入文件管理器</p>
+
+  <div class="notice hidden" id="lockNotice">
+    <strong>服务已锁定</strong>
+    <span>所有网页访问已被拒绝。请在桌面启动台或系统托盘解锁；无桌面环境时重启服务即可恢复。</span>
+  </div>
+
+  <form id="loginForm" novalidate>
+    <label class="field">
+      <span>访问密码</span>
+      <input type="password" id="password" name="password" autocomplete="current-password" placeholder="请输入访问密码" required autofocus>
+    </label>
+    <button type="submit" class="btn" id="submitBtn">进入系统</button>
+  </form>
+
+  <p class="error hidden" id="errorBox"></p>
+  <p class="hint hidden" id="countdown"></p>
+
+  <div class="login-foot">
+    <span id="version">NB 文件管理器</span>
+    <button type="button" class="link-btn" id="themeToggle">切换主题</button>
+  </div>
+</div>
+</body>
+</html>

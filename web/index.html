@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NB 文件管理器</title>
+<link rel="icon" href="favicon.ico" type="image/x-icon">
+<link rel="stylesheet" href="static/css/base.css">
+<link rel="stylesheet" href="static/css/files.css">
+<link rel="stylesheet" href="static/css/console.css">
+<script src="config.js"></script>
+<script type="module" src="static/js/app.js"></script>
+</head>
+<body>
+<svg class="svg-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <symbol id="i-files" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/></symbol>
+  <symbol id="i-console" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="m7 9 3 3-3 3m5 0h5"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V4m-5 5 5-5 5 5M4 17v3h16v-3"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v12m-5-5 5 5 5-5M4 17v3h16v-3"/></symbol>
+  <symbol id="i-folder-plus" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/><path d="M12 11v5m-2.5-2.5h5"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5M5 8a8 8 0 0 1 13-3l2 3M4 16l2 3a8 8 0 0 0 13-3"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><path d="m15 5 4 4M4 20l4.5-1L19 8a2.8 2.8 0 0 0-4-4L4.5 14.5Z"/></symbol>
+  <symbol id="i-move" viewBox="0 0 24 24"><path d="M12 3v18m-6-6 6 6 6-6M12 3 6 9m6-6 6 6"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="13" rx="1.5"/><path d="M16 8V4.5A1.5 1.5 0 0 0 14.5 3H4.5A1.5 1.5 0 0 0 3 4.5v10A1.5 1.5 0 0 0 4.5 16H8"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6Z"/><path d="M14 3v4h4"/></symbol>
+  <symbol id="i-network" viewBox="0 0 24 24"><path d="M2 8a16 16 0 0 1 20 0M5 12a11 11 0 0 1 14 0M8 16a6 6 0 0 1 8 0M12 20h.01"/></symbol>
+  <symbol id="i-speed" viewBox="0 0 24 24"><path d="M3 17a9 9 0 1 1 18 0"/><path d="m12 13 4-4"/><circle cx="12" cy="17" r="1.5"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6Z"/><path d="m8 12 3 3 5-6"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-11v2"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m4 12 5 5L20 6"/></symbol>
+  <symbol id="i-warning" viewBox="0 0 24 24"><path d="M12 3 2.5 20h19Z"/><path d="M12 9v5m0 3h.01"/></symbol>
+  <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="m3 11 9-8 9 8M5 10v10h14V10"/></symbol>
+</svg>
+
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-logo">NB</div>
+      <div class="brand-text"><strong>NB 文件管理器</strong><span>局域网文件共享</span></div>
+    </div>
+    <nav class="side-nav">
+      <button class="nav-item active" data-nav="files"><svg class="icon"><use href="#i-files"/></svg><span>文件管理</span></button>
+      <button class="nav-item" data-nav="console"><svg class="icon"><use href="#i-console"/></svg><span>控制台</span></button>
+    </nav>
+    <div class="side-foot">
+      <div class="side-meta">
+        <span id="sideVersion">v1.0.0</span>
+        <span id="sideStatus">服务运行中</span>
+      </div>
+      <a class="side-link" id="sideLogout" href="login"><svg class="icon"><use href="#i-lock"/></svg><span>退出登录</span></a>
+    </div>
+  </aside>
+  <div class="sidebar-mask hidden" id="sidebarMask"></div>
+
+  <main class="main">
+    <header class="topbar">
+      <button class="icon-btn menu-btn" id="menuToggle" title="打开菜单"><svg class="icon"><use href="#i-menu"/></svg></button>
+      <div class="topbar-title" id="pageTitle">文件管理</div>
+      <div class="topbar-actions">
+        <button class="net-chip" id="netChip" title="点击打开网络测速"><svg class="icon"><use href="#i-network"/></svg><span class="net-dot" id="netDot"></span><em id="netText">检测中</em></button>
+        <button class="icon-btn" id="themeToggle" title="切换亮/暗主题"><svg class="icon"><use id="themeIcon" href="#i-moon"/></svg></button>
+        <a class="btn btn-ghost" id="topLogout" href="login">退出</a>
+      </div>
+    </header>
+
+    <section class="view" id="filesView">
+      <div class="crumb-row">
+        <nav class="breadcrumb" id="breadcrumbs" aria-label="当前路径"></nav>
+        <div class="segmented" id="viewModeSwitch" role="group" aria-label="视图模式">
+          <button data-mode="list" class="active" title="列表视图"><svg class="icon"><use href="#i-list"/></svg></button>
+          <button data-mode="grid" title="网格视图"><svg class="icon"><use href="#i-grid"/></svg></button>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <button class="btn" id="btnUploadFiles"><svg class="icon"><use href="#i-upload"/></svg>上传文件</button>
+          <button class="btn btn-secondary" id="btnUploadFolder"><svg class="icon"><use href="#i-folder-plus"/></svg>上传文件夹</button>
+          <button class="btn btn-secondary" id="btnNewFolder"><svg class="icon"><use href="#i-folder-plus"/></svg>新建文件夹</button>
+          <span class="selection-info" id="selectionInfo"></span>
+          <button class="btn btn-secondary hidden" id="btnBatchDownload"><svg class="icon"><use href="#i-download"/></svg>批量下载</button>
+          <button class="btn btn-secondary hidden" id="btnBatchCopy"><svg class="icon"><use href="#i-copy"/></svg>批量复制</button>
+          <button class="btn btn-secondary hidden" id="btnBatchMove"><svg class="icon"><use href="#i-move"/></svg>批量移动</button>
+          <button class="btn btn-danger hidden" id="btnBatchDelete"><svg class="icon"><use href="#i-trash"/></svg>批量删除</button>
+        </div>
+        <div class="toolbar-right">
+          <form class="search-box" id="searchForm">
+            <svg class="icon"><use href="#i-search"/></svg>
+            <input type="search" id="searchInput" placeholder="搜索当前目录及子目录" autocomplete="off">
+            <button class="btn btn-secondary" type="submit">搜索</button>
+          </form>
+          <button class="icon-btn" id="btnRefresh" title="刷新当前目录"><svg class="icon"><use href="#i-refresh"/></svg></button>
+        </div>
+        <input type="file" id="fileInput" multiple hidden>
+        <input type="file" id="folderInput" webkitdirectory directory hidden>
+      </div>
+
+      <div class="search-notice hidden" id="searchNotice">
+        <svg class="icon"><use href="#i-search"/></svg>
+        <span>搜索结果：<b id="searchKeyword"></b></span>
+        <span id="searchTruncated" class="muted hidden">（结果过多，仅显示前 5000 项）</span>
+        <button class="btn btn-ghost btn-sm" id="btnClearSearch">清除搜索</button>
+      </div>
+
+      <div class="upload-panel hidden" id="uploadPanel">
+        <div class="upload-head">
+          <div class="upload-title">上传队列<span id="uploadCount" class="badge hidden"></span></div>
+          <div class="upload-actions">
+            <button class="btn btn-secondary btn-sm hidden" id="btnRetryFailed"><svg class="icon"><use href="#i-refresh"/></svg>重试失败</button>
+            <button class="btn btn-danger btn-sm hidden" id="btnStopUpload">停止上传</button>
+            <button class="btn btn-ghost btn-sm" id="btnClearQueue">清除已完成</button>
+            <button class="btn btn-ghost btn-sm" id="btnCollapseQueue">收起</button>
+          </div>
+        </div>
+        <div class="progress-track"><div class="progress-bar" id="globalBar"></div><span class="progress-text" id="globalText">准备上传…</span></div>
+        <div class="upload-list" id="uploadList"></div>
+      </div>
+
+      <div class="table-wrap" id="tableWrap">
+        <table class="file-table" id="fileTable">
+          <thead>
+            <tr>
+              <th class="col-check"><input type="checkbox" id="checkAll" title="全选当前页"></th>
+              <th class="col-name"><button class="sort-btn" data-sort="name">名称<span class="sort-mark"></span></button></th>
+              <th class="col-size"><button class="sort-btn" data-sort="size">大小<span class="sort-mark"></span></button></th>
+              <th class="col-time"><button class="sort-btn" data-sort="mtime">修改时间<span class="sort-mark"></span></button></th>
+              <th class="col-actions">操作</th>
+            </tr>
+          </thead>
+          <tbody id="fileBody"></tbody>
+        </table>
+        <div class="empty hidden" id="emptyState">
+          <svg class="icon empty-icon"><use href="#i-folder"/></svg>
+          <b id="emptyTitle">当前目录为空</b>
+          <span>把文件拖拽到页面，或按 Ctrl+V 粘贴即可上传</span>
+        </div>
+        <div class="grid-view hidden" id="gridView"></div>
+      </div>
+
+      <div class="pager" id="pager"></div>
+    </section>
+
+    <section class="view hidden" id="consoleView">
+      <div class="console-tabs" id="consoleTabs">
+        <button data-tab="overview" class="active">概览</button>
+        <button data-tab="settings">服务器设置</button>
+        <button data-tab="logs">日志</button>
+        <button data-tab="recycle">回收站</button>
+      </div>
+
+      <div class="console-panel" data-panel="overview">
+        <div class="overview-top">
+          <div class="card status-card">
+            <div class="status-main">
+              <span class="status-dot" id="ovDot"></span>
+              <div><h3 id="ovStatus">正在加载…</h3><p id="ovHint" class="muted">—</p></div>
+            </div>
+            <div class="status-actions">
+              <button class="btn btn-secondary" id="btnRestart"><svg class="icon"><use href="#i-refresh"/></svg>重启服务</button>
+              <button class="btn btn-danger" id="btnLock"><svg class="icon"><use href="#i-lock"/></svg>锁定服务</button>
+            </div>
+          </div>
+          <div class="card disk-card">
+            <div class="card-title">磁盘空间</div>
+            <div class="meter"><span id="diskBar"></span></div>
+            <div class="disk-text" id="diskText">—</div>
+          </div>
+        </div>
+
+        <div class="stat-grid">
+          <div class="card stat-card"><span class="stat-label">运行时长</span><b id="statUptime">—</b></div>
+          <div class="card stat-card"><span class="stat-label">上传流量</span><b id="statUpload">—</b></div>
+          <div class="card stat-card"><span class="stat-label">下载流量</span><b id="statDownload">—</b></div>
+          <div class="card stat-card"><span class="stat-label">在线设备</span><b id="statOnline">—</b></div>
+        </div>
+
+        <div class="two-col">
+          <div class="card">
+            <div class="card-title">访问地址</div>
+            <div class="url-list" id="urlList"><span class="muted">服务未运行</span></div>
+          </div>
+          <div class="card">
+            <div class="card-title">路径信息</div>
+            <dl class="path-list">
+              <dt>共享目录</dt><dd id="pathRoot">—</dd>
+              <dt>数据目录</dt><dd id="pathData">—</dd>
+              <dt>监听端口</dt><dd id="pathPort">—</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="card error-card" id="errorCard">
+          <div class="card-title"><svg class="icon"><use href="#i-warning"/></svg>服务器错误</div>
+          <p id="lastError" class="muted">无</p>
+        </div>
+      </div>
+
+      <div class="console-panel hidden" data-panel="settings">
+        <div class="card">
+          <div class="card-title">服务器设置</div>
+          <form id="settingsForm" class="form-grid">
+            <label class="field"><span>监听端口</span><input type="number" id="setPort" min="1" max="65535" required></label>
+            <label class="field"><span>监听范围</span><select id="setBind"><option value="lan">允许局域网访问</option><option value="local">仅本机访问</option></select></label>
+            <label class="field wide"><span>共享目录</span><input type="text" id="setRoot" placeholder="服务器上的绝对路径"></label>
+            <label class="field"><span>上传限制（MB，0 为无限制）</span><input type="number" id="setUploadLimit" min="0" step="10"></label>
+            <label class="field"><span>重名处理</span><select id="setConflict"><option value="ask">每次询问</option><option value="rename">自动重命名</option><option value="overwrite">直接覆盖</option></select></label>
+            <label class="field"><span>ZIP 压缩级别</span><select id="setZip"><option value="standard">标准</option><option value="fast">快速</option><option value="store">仅存储</option></select></label>
+            <label class="field"><span>回收站保留天数</span><input type="number" id="setRecycleDays" min="1" max="3650"></label>
+            <label class="field"><span>登录有效期（小时）</span><input type="number" id="setSessionHours" min="1" max="720"></label>
+            <label class="field"><span>登录失败上限（次）</span><input type="number" id="setMaxFailures" min="3" max="100"></label>
+            <label class="field"><span>封禁时长（分钟）</span><input type="number" id="setBlockMinutes" min="1" max="1440"></label>
+            <label class="field checkbox-field"><input type="checkbox" id="setIncludeFolder"><span>打包时包含顶层文件夹</span></label>
+            <label class="field checkbox-field"><input type="checkbox" id="setAutoStart"><span>桌面程序启动时自动启动服务</span></label>
+            <div class="form-actions wide">
+              <span class="form-hint" id="settingsHint">修改端口或监听范围后服务会自动重启</span>
+              <button class="btn" type="submit" id="btnSaveSettings">保存设置</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="card">
+          <div class="card-title">访问密码</div>
+          <form id="passwordForm" class="form-grid">
+            <label class="field wide hidden" id="currentPwdField"><span>当前密码</span><input type="password" id="pwdCurrent" autocomplete="current-password"></label>
+            <label class="field"><span>新密码</span><input type="password" id="pwdNew" autocomplete="new-password"></label>
+            <label class="field"><span>确认新密码</span><input type="password" id="pwdConfirm" autocomplete="new-password"></label>
+            <div class="form-actions wide"><span class="form-hint">修改成功后所有登录会话将失效</span><button class="btn" type="submit" id="btnSavePassword">修改密码</button></div>
+          </form>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Nginx 反向代理配置</div>
+          <div class="form-grid">
+            <label class="field"><span>后端地址</span><input type="text" id="ngBackend" placeholder="127.0.0.1:8888"></label>
+            <label class="field"><span>路径前缀</span><input type="text" id="ngPrefix" value="file"></label>
+            <label class="field"><span>对外监听端口</span><input type="text" id="ngListen" value="9000"></label>
+            <div class="form-actions wide"><button class="btn btn-secondary" id="btnGenNginx">生成配置</button><button class="btn btn-ghost" id="btnCopyNginx" disabled>复制配置</button></div>
+          </div>
+          <pre class="code-block" id="nginxOutput">生成后在此显示 Nginx 配置</pre>
+        </div>
+      </div>
+
+      <div class="console-panel hidden" data-panel="logs">
+        <div class="card">
+          <div class="panel-head">
+            <div class="segmented" id="logKinds">
+              <button data-kind="access" class="active">访问日志</button>
+              <button data-kind="upload">上传记录</button>
+              <button data-kind="download">下载记录</button>
+            </div>
+            <div class="panel-actions">
+              <label class="check-inline"><input type="checkbox" id="autoLogs" checked>自动刷新</label>
+              <button class="btn btn-secondary btn-sm" id="btnRefreshLogs"><svg class="icon"><use href="#i-refresh"/></svg>刷新</button>
+              <button class="btn btn-danger btn-sm" id="btnClearLogs">清空日志</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="log-table" id="logTable"><thead></thead><tbody></tbody></table>
+          </div>
+          <div class="pager" id="logPager"></div>
+        </div>
+      </div>
+
+      <div class="console-panel hidden" data-panel="recycle">
+        <div class="card">
+          <div class="panel-head">
+            <div class="muted">回收站保留 <b id="recycleDays">30</b> 天，超期自动清除</div>
+            <div class="panel-actions">
+              <button class="btn btn-secondary btn-sm" id="btnRefreshRecycle"><svg class="icon"><use href="#i-refresh"/></svg>刷新</button>
+              <button class="btn btn-secondary btn-sm" id="btnRestoreRecycle">还原选中</button>
+              <button class="btn btn-secondary btn-sm" id="btnPurgeRecycle">永久删除</button>
+              <button class="btn btn-danger btn-sm" id="btnClearRecycle">清空回收站</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="log-table" id="recycleTable"><thead></thead><tbody></tbody></table>
+            <div class="empty hidden" id="recycleEmpty"><svg class="icon empty-icon"><use href="#i-trash"/></svg><b>回收站为空</b><span>删除的项目会保留在这里</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="lock-screen hidden" id="lockScreen">
+  <div class="lock-card">
+    <svg class="icon"><use href="#i-lock"/></svg>
+    <h2>服务已锁定</h2>
+    <p>所有网页访问均已拒绝。<br>请在桌面启动台或系统托盘解锁；无桌面环境时重启服务即可恢复。</p>
+    <button class="btn" id="btnLockRefresh">刷新页面</button>
+  </div>
+</div>
+
+<div class="drop-overlay hidden" id="dropOverlay"><svg class="icon"><use href="#i-upload"/></svg><span>释放以上传文件或文件夹</span></div>
+<div class="toast-box" id="toastBox"></div>
+
+<div class="modal" id="mkdirModal">
+  <div class="modal-box modal-sm">
+    <div class="modal-head"><h3>新建文件夹</h3><button class="icon-btn" data-close="mkdirModal"><svg class="icon"><use href="#i-close"/></svg></button></div>
+    <label class="field"><span>文件夹名称</span><input type="text" id="newFolderName" autocomplete="off" placeholder="请输入名称"></label>
+    <div class="modal-actions"><button class="btn btn-secondary" data-close="mkdirModal">取消</button><button class="btn" id="btnCreateFolder">创建</button></div>
+  </div>
+</div>
+
+<div class="modal" id="renameModal">
+  <div class="modal-box modal-sm">
+    <div class="modal-head"><h3>重命名</h3><button class="icon-btn" data-close="renameModal"><svg class="icon"><use href="#i-close"/></svg></button></div>
+    <label class="field"><span>新名称</span><input type="text" id="renameInput" autocomplete="off"></label>
+    <div class="modal-actions"><button class="btn btn-secondary" data-close="renameModal">取消</button><button class="btn" id="btnRename">保存</button></div>
+  </div>
+</div>
+
+<div class="modal" id="moveModal">
+  <div class="modal-box">
+    <div class="modal-head"><h3 id="moveTitle">移动到文件夹</h3><button class="icon-btn" data-close="moveModal"><svg class="icon"><use href="#i-close"/></svg></button></div>
+    <div class="dest-tools">
+      <input type="text" id="destFilter" placeholder="输入名称过滤，命中项显示完整路径" autocomplete="off">
+      <button class="btn btn-secondary btn-sm" id="btnReloadDests"><svg class="icon"><use href="#i-refresh"/></svg>刷新</button>
+    </div>
+    <div class="dest-tree" id="destTree"><div class="tree-empty">加载中…</div></div>
+    <div class="modal-actions"><button class="btn btn-secondary" data-close="moveModal">取消</button><button class="btn" id="btnMoveOk">确定</button></div>
+  </div>
+</div>
+
+<div class="modal" id="confirmModal">
+  <div class="modal-box modal-sm confirm-box">
+    <div class="modal-head"><h3 id="confirmTitle">操作确认</h3></div>
+    <p class="confirm-message" id="confirmMessage"></p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="confirmCancel">取消</button>
+      <button class="btn btn-secondary hidden" id="confirmRename">重命名保存</button>
+      <button class="btn btn-danger" id="confirmOk">确定</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="previewModal">
+  <div class="modal-box preview-box">
+    <div class="modal-head">
+      <div class="preview-title"><h3 id="previewName">预览</h3><p class="muted" id="previewMeta"></p></div>
+      <button class="icon-btn" data-close="previewModal"><svg class="icon"><use href="#i-close"/></svg></button>
+    </div>
+    <div class="preview-body" id="previewBody"></div>
+    <div class="modal-actions"><a class="btn" id="previewDownload" href="#" download><svg class="icon"><use href="#i-download"/></svg>下载文件</a><button class="btn btn-secondary" data-close="previewModal">关闭</button></div>
+  </div>
+</div>
+
+<div class="modal" id="speedModal">
+  <div class="modal-box modal-sm">
+    <div class="modal-head"><h3>网络测速</h3><button class="icon-btn" data-close="speedModal"><svg class="icon"><use href="#i-close"/></svg></button></div>
+    <div class="speed-rows">
+      <div class="speed-row"><span>延迟</span><b id="speedPing">—</b><em id="speedPingSub"></em></div>
+      <div class="speed-row"><span>下载</span><b id="speedDown">—</b><em id="speedDownSub"></em></div>
+      <div class="speed-row"><span>上传</span><b id="speedUp">—</b><em id="speedUpSub"></em></div>
+    </div>
+    <div class="meter"><span id="speedBar"></span></div>
+    <p class="speed-verdict" id="speedVerdict"></p>
+    <div class="modal-actions"><button class="btn btn-secondary" data-close="speedModal">关闭</button><button class="btn" id="btnRunSpeed"><svg class="icon"><use href="#i-speed"/></svg>开始测速</button></div>
+  </div>
+</div>
+
+<div class="modal" id="restartModal">
+  <div class="modal-box modal-sm restart-box">
+    <div class="spinner"></div>
+    <h3>正在重启服务</h3>
+    <p class="muted" id="restartHint">请稍候，页面会自动恢复连接。</p>
+    <div class="modal-actions"><button class="btn btn-secondary" data-close="restartModal">关闭</button><button class="btn" id="btnRetryConnect">立即重试</button></div>
+  </div>
+</div>
+</body>
+</html>

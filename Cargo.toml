@@ -1,0 +1,56 @@
+[package]
+name = "nb-file-manager"
+version = "1.0.0"
+edition = "2021"
+rust-version = "1.87"
+description = "NB 文件管理器 - 局域网文件管理与共享服务器"
+default-run = "nb-file-manager"
+build = "build.rs"
+
+[features]
+default = ["desktop"]
+desktop = ["dep:tauri", "dep:rfd", "dep:open"]
+
+[dependencies]
+axum = "0.8"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "fs", "io-util", "time", "signal", "sync"] }
+tokio-util = { version = "0.7", features = ["io"] }
+futures-util = "0.3"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+chrono = { version = "0.4", default-features = false, features = ["clock"] }
+zip = { version = "2.4", default-features = false, features = ["deflate"] }
+walkdir = "2"
+uuid = { version = "1", features = ["v4"] }
+rand = "0.8"
+sha2 = "0.10"
+hmac = "0.12"
+subtle = "2"
+argon2 = "0.5"
+percent-encoding = "2"
+mime_guess = "2"
+httpdate = "1"
+filetime = "0.2"
+local-ip-address = "0.6"
+fs2 = "0.4"
+tauri = { version = "=2.8.5", features = ["tray-icon", "image-png"], optional = true }
+rfd = { version = "0.15", default-features = false, optional = true }
+open = { version = "5", optional = true }
+
+[build-dependencies]
+tauri-build = { version = "=2.4.1", features = [] }
+
+[[bin]]
+name = "nb-file-manager"
+path = "src/main.rs"
+required-features = ["desktop"]
+
+[[bin]]
+name = "nb-file-server"
+path = "src/bin/server.rs"
+
+[profile.release]
+strip = true
+lto = "thin"
+codegen-units = 1
+panic = "abort"

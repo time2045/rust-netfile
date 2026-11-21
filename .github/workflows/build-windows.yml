@@ -1,0 +1,163 @@
+name: Build & Release
+
+on:
+  push:
+    branches: [main, master]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nb-netfile-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows:
+    name: Windows desktop (single EXE)
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust
+        uses: Swatinem/rust-cache@v2
+
+      - name: Set up MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Test
+        run: cargo test --locked
+
+      - name: Build release
+        run: cargo build --release --locked
+
+      - name: Verify single-file executable and stage
+        shell: pwsh
+        run: |
+          $exe = "target/release/nb-file-manager.exe"
+          if (-not (Test-Path -LiteralPath $exe)) {
+            throw "Release executable was not produced."
+          }
+          $dependencies = (& dumpbin /dependents $exe | Out-String)
+          Write-Host $dependencies
+          if ($dependencies -match 'WebView2Loader\.dll') {
+            throw "The executable still imports WebView2Loader.dll and is not single-file."
+          }
+          if (Test-Path -LiteralPath "target/release/WebView2Loader.dll") {
+            throw "An unexpected WebView2Loader.dll was produced in the release directory."
+          }
+          New-Item -ItemType Directory -Path dist -Force | Out-Null
+          Copy-Item -LiteralPath $exe -Destination dist/nb-file-manager.exe
+          Get-Item -LiteralPath dist/nb-file-manager.exe | Select-Object Name, Length
+
+      - name: Upload Windows EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: nb-file-manager-windows-x64
+          path: dist/nb-file-manager.exe
+          if-no-files-found: error
+
+  linux:
+    name: Linux headless server
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust
+        uses: Swatinem/rust-cache@v2
+
+      - name: Test headless build
+        run: cargo test --locked --no-default-features
+
+      - name: Build headless server
+        run: cargo build --release --locked --no-default-features --bin nb-file-server
+
+      - name: Stage server binary
+        run: |
+          set -e
+          mkdir -p dist
+          cp target/release/nb-file-server dist/nb-file-server
+          ls -lh dist/nb-file-server
+
+      - name: Upload Linux server
+        uses: actions/upload-artifact@v4
+        with:
+          name: nb-file-server-linux-x64
+          path: dist/nb-file-server
+          if-no-files-found: error
+
+  release:
+    name: Publish GitHub Release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [windows, linux]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download Windows EXE
+        uses: actions/download-artifact@v4
+        with:
+          name: nb-file-manager-windows-x64
+          path: release/windows
+
+      - name: Download Linux server
+        uses: actions/download-artifact@v4
+        with:
+          name: nb-file-server-linux-x64
+          path: release/linux
+
+      - name: Prepare release files
+        shell: bash
+        run: |
+          set -e
+          mv release/windows/nb-file-manager.exe "release/NB-File-Manager-${GITHUB_REF_NAME}.exe"
+          mv release/linux/nb-file-server "release/NB-File-Server-${GITHUB_REF_NAME}-linux-x64"
+          ls -lh release
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          name: NB文件管理器_${{ github.ref_name }}
+          files: |
+            release/NB-File-Manager-*.exe
+            release/NB-File-Server-*-linux-x64
+          fail_on_unmatched_files: true
+          body: |
+            NB 文件管理器 ${{ github.ref_name }}
+
+            - Windows 10/11 x64 桌面单文件版：双击运行，服务启动后可在此电脑或局域网浏览器中使用文件管理器与 Web 控制台。
+            - Linux 无界面服务：命令行启动，自带 Web 控制台，适合 NAS / 服务器部署。
+
+            说明：GitHub Releases 不支持中文资源文件名，实际下载名称为 `NB-File-Manager-${{ github.ref_name }}.exe` 与 `NB-File-Server-${{ github.ref_name }}-linux-x64`；资源显示标签保留中文+版本号。
+
+            Windows 需要 WebView2 Runtime（Windows 10/11 通常已随 Edge 安装）。
+
+      - name: Set Chinese asset labels
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          release_json=$(gh api "repos/${{ github.repository }}/releases/tags/${{ github.ref_name }}")
+          exe_id=$(echo "$release_json" | jq -r '.assets[] | select(.name | endswith(".exe")) | .id' | head -n 1)
+          linux_id=$(echo "$release_json" | jq -r '.assets[] | select(.name | contains("linux-x64")) | .id' | head -n 1)
+          if [ -n "$exe_id" ] && [ "$exe_id" != "null" ]; then
+            gh api -X PATCH "repos/${{ github.repository }}/releases/assets/$exe_id" \
+              -f "label=NB文件管理器_${{ github.ref_name }}.exe" > /dev/null
+          fi
+          if [ -n "$linux_id" ] && [ "$linux_id" != "null" ]; then
+            gh api -X PATCH "repos/${{ github.repository }}/releases/assets/$linux_id" \
+              -f "label=NB文件服务器_${{ github.ref_name }}_linux-x64" > /dev/null
+          fi
