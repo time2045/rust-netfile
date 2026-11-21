@@ -138,10 +138,10 @@ pub async fn start_server(state: State<'_, SharedState>) -> Result<Snapshot, Str
 }
 
 #[tauri::command]
-pub async fn stop_server(state: State<'_, SharedState>) -> Snapshot {
+pub async fn stop_server(state: State<'_, SharedState>) -> Result<Snapshot, String> {
     let state = state.inner().clone();
     state.stop_server().await;
-    state.snapshot()
+    Ok(state.snapshot())
 }
 
 #[tauri::command]
