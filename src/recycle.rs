@@ -349,6 +349,43 @@ pub fn purge_expired(state: &AppState) -> u64 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::config::AppConfig;
+    use crate::logging::LogStore;
+    use crate::state::AppState;
+
+    #[test]
+    fn recycle_roundtrip() {
+        let base =
+            std::env::temp_dir().join(format!("nb-recycle-{}", crate::config::random_hex(8)));
+        let data_dir = base.join("data");
+        let root = base.join("files");
+        std::fs::create_dir_all(&root).unwrap();
+        std::fs::create_dir_all(&data_dir).unwrap();
+        let canonical = std::fs::canonicalize(&root).unwrap();
+        let mut cfg = AppConfig::default();
+        cfg.root_dir = canonical.to_string_lossy().to_string();
+        let log = LogStore::new(&data_dir);
+        let state = AppState::new(data_dir, cfg, log, None);
+
+        let file = root.join("回收测试.txt");
+        std::fs::write(&file, b"content").unwrap();
+        move_to_recycle(&state, &file).unwrap();
+        assert!(!file.exists());
+        let entries = scan(&state);
+        assert_eq!(entries.len(), 1);
+        assert_eq!(entries[0].orig, "回收测试.txt");
+
+        let (ok, fails) = restore(&state, &[entries[0].name.clone()]);
+        assert_eq!(ok, 1, "{fails:?}");
+        assert!(file.exists());
+
+        move_to_recycle(&state, &file).unwrap();
+        let entries = scan(&state);
+        let (ok, fails) = purge(&state, &[entries[0].name.clone()]);
+        assert_eq!(ok, 1, "{fails:?}");
+        assert!(scan(&state).is_empty());
+        std::fs::remove_dir_all(&base).ok();
+    }
 
     #[test]
     fn stamp_stripping() {

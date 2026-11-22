@@ -31,10 +31,6 @@ pub fn static_asset(path: &str) -> Option<(&'static str, &'static [u8])> {
             "text/css; charset=utf-8",
             include_bytes!("../../web/css/files.css").as_slice(),
         ),
-        "css/console.css" => (
-            "text/css; charset=utf-8",
-            include_bytes!("../../web/css/console.css").as_slice(),
-        ),
         "css/login.css" => (
             "text/css; charset=utf-8",
             include_bytes!("../../web/css/login.css").as_slice(),
@@ -46,10 +42,6 @@ pub fn static_asset(path: &str) -> Option<(&'static str, &'static [u8])> {
         "js/files.js" => (
             "application/javascript; charset=utf-8",
             include_bytes!("../../web/js/files.js").as_slice(),
-        ),
-        "js/console.js" => (
-            "application/javascript; charset=utf-8",
-            include_bytes!("../../web/js/console.js").as_slice(),
         ),
         "js/app.js" => (
             "application/javascript; charset=utf-8",

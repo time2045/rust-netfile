@@ -281,13 +281,12 @@ export function startRouter() {
   if (routeHandler) routeHandler(currentParams());
 }
 
-export function showView(name) {
-  const files = name === "files";
-  $("#filesView").classList.toggle("hidden", !files);
-  $("#consoleView").classList.toggle("hidden", files);
-  $("#pageTitle").textContent = files ? "文件管理" : "控制台";
-  $$(".nav-item").forEach((item) => item.classList.toggle("active", item.dataset.nav === name));
-  document.title = (files ? "文件管理" : "控制台") + " · NB 文件管理器";
+export function showView(_name) {
+  $("#filesView")?.classList.remove("hidden");
+  const title = $("#pageTitle");
+  if (title) title.textContent = "文件管理";
+  $$(".nav-item").forEach((item) => item.classList.toggle("active", item.dataset.nav === "files"));
+  document.title = "文件管理 · NB 文件管理器";
 }
 
 export function initTheme() {
@@ -350,10 +349,7 @@ export function initChrome() {
     });
   });
   $$(".nav-item").forEach((item) => {
-    item.addEventListener("click", () => {
-      if (item.dataset.nav === "files") navigate({ view: "files" });
-      else navigate({ view: "console", tab: "overview" });
-    });
+    item.addEventListener("click", () => navigate({ view: "files" }));
   });
   $("#btnLockRefresh")?.addEventListener("click", () => location.reload());
 }

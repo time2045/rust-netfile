@@ -137,8 +137,8 @@ jobs:
           body: |
             NB 文件管理器 ${{ github.ref_name }}
 
-            - Windows 10/11 x64 桌面单文件版：双击运行，服务启动后可在此电脑或局域网浏览器中使用文件管理器与 Web 控制台。
-            - Linux 无界面服务：命令行启动，自带 Web 控制台，适合 NAS / 服务器部署。
+            - Windows 10/11 x64 桌面单文件版：双击运行：桌面窗口管理服务器，局域网浏览器使用 Web 文件页。
+            - Linux 无界面服务：命令行启动，提供 Web 文件页，适合 NAS / 服务器部署。
 
             说明：GitHub Releases 不支持中文资源文件名，实际下载名称为 `NB-File-Manager-${{ github.ref_name }}.exe` 与 `NB-File-Server-${{ github.ref_name }}-linux-x64`；资源显示标签保留中文+版本号。
 

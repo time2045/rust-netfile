@@ -6,6 +6,7 @@ pub mod desktop;
 pub mod error;
 pub mod fsops;
 pub mod logging;
+pub mod nginx;
 pub mod paths;
 pub mod recycle;
 pub mod server;

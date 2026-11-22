@@ -51,7 +51,7 @@ impl ApiError {
     pub fn locked() -> Self {
         Self::new(
             StatusCode::LOCKED,
-            "服务已锁定，请在桌面启动台或系统托盘解锁后重试",
+            "服务已锁定，请在桌面管理端或系统托盘解锁后重试",
         )
     }
 

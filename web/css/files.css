@@ -244,3 +244,25 @@ body.modal-open { overflow: hidden; }
 .task-bar { height: 6px; background: var(--surface-3); border-radius: 3px; overflow: hidden; }
 .task-bar span { display: block; width: 0; height: 100%; background: linear-gradient(90deg, #22c55e, #06b6d4); transition: width 0.2s; }
 .task-text { color: var(--text-2); word-break: break-all; }
+
+.dest-tools { display: flex; gap: 8px; align-items: center; }
+.dest-tools input { flex: 1; }
+.dest-tree {
+  margin-top: 10px; max-height: 280px; overflow: auto;
+  border: 1px solid var(--border-strong); border-radius: 9px;
+  background: var(--surface-2);
+}
+.tree-row {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 9px; font-size: 12.5px; cursor: pointer;
+  word-break: break-all;
+}
+.tree-row:hover { background: var(--primary-soft); }
+.tree-row.selected { background: var(--primary); color: var(--on-primary); }
+.tree-row.selected .tree-path { color: var(--on-primary); opacity: 0.8; }
+.tree-row.selected .tree-arrow { color: var(--on-primary); }
+.tree-arrow { width: 14px; flex-shrink: 0; text-align: center; font-size: 9px; color: var(--text-2); user-select: none; }
+.tree-arrow.hidden-arrow { visibility: hidden; }
+.tree-path { display: block; font-size: 10.5px; color: var(--text-2); }
+.tree-icon { width: 14px; height: 14px; color: #f0b03c; flex-shrink: 0; }
+.tree-empty { padding: 18px; text-align: center; color: var(--text-2); font-size: 12.5px; }

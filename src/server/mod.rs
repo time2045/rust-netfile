@@ -12,7 +12,6 @@ use std::sync::Arc;
 use std::time::Instant;
 
 pub mod api_auth;
-pub mod api_console;
 pub mod api_download;
 pub mod api_files;
 pub mod api_list;
@@ -56,30 +55,6 @@ pub fn build_router(state: SharedState) -> Router {
         .route("/api/upload/abort", post(api_upload::abort))
         .route("/api/speed/down", get(api_speed::down))
         .route("/api/speed/up", post(api_speed::up))
-        .route("/api/console/overview", get(api_console::overview))
-        .route(
-            "/api/console/config",
-            get(api_console::get_config).post(api_console::save_config),
-        )
-        .route("/api/console/password", post(api_console::change_password))
-        .route("/api/console/lock", post(api_console::lock))
-        .route("/api/console/restart", post(api_console::restart))
-        .route("/api/console/logs", get(api_console::logs))
-        .route("/api/console/logs/clear", post(api_console::clear_logs))
-        .route("/api/console/recycle", get(api_console::recycle_list))
-        .route(
-            "/api/console/recycle/restore",
-            post(api_console::recycle_restore),
-        )
-        .route(
-            "/api/console/recycle/purge",
-            post(api_console::recycle_purge),
-        )
-        .route(
-            "/api/console/recycle/clear",
-            post(api_console::recycle_clear),
-        )
-        .route("/api/console/nginx", get(api_console::nginx_config))
         .route_layer(middleware::from_fn_with_state(state.clone(), require_auth));
 
     Router::new()
@@ -127,9 +102,6 @@ fn skip_access_log(path: &str) -> bool {
     is_asset_request(path)
         || path == "/api/ping"
         || path == "/api/task/status"
-        || path == "/api/console/overview"
-        || path == "/api/console/logs"
-        || path == "/api/console/recycle"
         || path == "/api/folders"
         || path == "/api/upload/status"
         || path == "/api/upload/chunk"
